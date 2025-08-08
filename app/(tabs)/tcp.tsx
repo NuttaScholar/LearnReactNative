@@ -1,91 +1,100 @@
 import Button from "@/components/atom/Button";
+import InputField from "@/components/atom/InputField";
 import React, { useState } from "react";
-import { StyleSheet, Text, TextInput, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 import TcpSocket from "react-native-tcp-socket";
 
 type endpoint = {
   ip: string;
   port: number;
 };
-function send(target: endpoint, data: string) {
-  // สร้าง TCP Client
-  const client = TcpSocket.createConnection(
-    { port: target.port, host: target.ip }, // เปลี่ยนเป็น IP ของ Server
-    () => {
-      console.log("✅ Connected to server");
-      client.write(data);
-    }
-  );
 
-  // เมื่อได้รับข้อมูล
-  client.on("data", (data) => {
-    console.log("📩 Server says: " + data.toString());
-    // Close socket
-    client.destroy();
-  });
-
-  // เมื่อเกิดข้อผิดพลาด
-  client.on("error", (error) => {
-    console.log("❌ Error: " + error);
-  });
-
-  // เมื่อปิดการเชื่อมต่อ
-  client.on("close", () => {
-    console.log("🔌 Connection closed");
-  });
-}
-function connect(target: endpoint) {
-  // สร้าง TCP Client
-  const client = TcpSocket.connect(
-    { port: target.port, host: target.ip }, // เปลี่ยนเป็น IP ของ Server
-    () => {
-      console.log("✅ Connected to server");      
-    }
-  );
-
-  // เมื่อได้รับข้อมูล
-  client.on("data", (data) => {
-    console.log("📩 Server says: " + data.toString());
-  });
-
-  // เมื่อเกิดข้อผิดพลาด
-  client.on("error", (error) => {
-    console.log("❌ Error: " + error);
-  });
-
-  // เมื่อปิดการเชื่อมต่อ
-  client.on("close", () => {
-    console.log("🔌 Connection closed");
-  });
-}
 export default function App() {
   // Hook ************************************
   const [endpoint, setEndpoint] = useState<endpoint>({ ip: "", port: 0 });
-
+  const [data, setData] = useState("");
+  const [recive, setRecive] = useState("");
+  const [socket, setSocket] = useState<TcpSocket.Socket>();
+  const [connected, setConnected] = useState(false);
   // Local Function **************************
   const onConnect = () => {
-    connect(endpoint);
+    const tcpSocket = TcpSocket.createConnection(
+      { port: endpoint.port, host: endpoint.ip },
+      () => {
+        console.log("✅ Connected to server");
+        setConnected(true);
+        // เมื่อได้รับข้อมูล
+        tcpSocket.on("data", (data) => {
+          const res = data.toString();
+          console.log("📩 Server says: " + res);
+          setRecive(res);
+        });
+
+        // เมื่อปิดการเชื่อมต่อ
+        tcpSocket.on("close", () => {
+          console.log("🔌 Connection closed");
+        });
+      }
+    );
+    // เมื่อเกิดข้อผิดพลาด
+    tcpSocket.on("error", (error) => {
+      console.log("❌ Error: " + error);
+    });
+    // จัดการเมื่อ timeout เกิดขึ้น
+    tcpSocket.on("timeout", () => {
+      console.log("⏱️ Connection timed out");
+      tcpSocket.destroy(); // ปิด connection
+      setConnected(false);
+    });
+
+    tcpSocket.setTimeout(5000);
+    setSocket(tcpSocket);
+  };
+  const onDisconnect = () => {
+    socket?.destroy();
+    setConnected(false);
+  }
+  const onSend = () => {
+    if(connected){
+      socket?.write(data);
+    }    
   };
 
   return (
     <View style={styles.container}>
-      <Text>IP:</Text>
-      <TextInput
-        style={styles.input}
-        onChangeText={(val) => {
+      <InputField
+        label="IP"
+        onChange={(val) => {
           setEndpoint({ ...endpoint, ip: val });
         }}
         value={endpoint?.ip}
+        style_label={styles.text}
       />
-      <Text>Port:</Text>
-      <TextInput
-        style={styles.input}
-        onChangeText={(val) => {
-          setEndpoint({ ...endpoint, port: Number(val) });
+      <InputField
+        label="Port"
+        onChange={(val) => {
+          if (!isNaN(Number(val))) {
+            setEndpoint({ ...endpoint, port: Number(val) });
+          }
         }}
-        value={endpoint?.port.toString()}
+        value={endpoint.port.toString()}
+        style_label={styles.text}
       />
-      <Button label="Connect" onClick={onConnect} />
+      <Button label={connected?"Disconnect":"Connect"} onClick={connected?onDisconnect:onConnect} />
+      <InputField
+        label="Recive"
+        value={recive}
+        style_label={styles.text}
+        multiline
+        editable={false}
+      />
+      <InputField
+        label="Data"
+        onChange={setData}
+        value={data}
+        style_label={styles.text}
+      />
+      <Button label="Send" onClick={onSend} />
     </View>
   );
 }
@@ -93,14 +102,10 @@ export default function App() {
 const styles = StyleSheet.create({
   container: { flex: 1, justifyContent: "center", alignItems: "center" },
   text: {
-    color: "#fff",
-  },
-  input: {
-    height: 40,
-    width: 200,
-    margin: 12,
-    borderWidth: 1,
-    padding: 10,
+    fontSize: 16,
+    fontWeight: 600,
+    width: 60,
+    textAlign: "right",
   },
   button: {
     alignItems: "center",
