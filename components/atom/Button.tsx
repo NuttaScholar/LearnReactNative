@@ -1,14 +1,15 @@
-import { StyleSheet, Text, TouchableHighlight, View } from "react-native";
+import { StyleProp, StyleSheet, Text, TouchableHighlight, View, ViewStyle } from "react-native";
 
 interface myProps {
     label: string;
+    style?: StyleProp<ViewStyle>;
     onClick: ()=>void;
 }
 
 const Button: React.FC<myProps> = (props) => {
   return (
     <TouchableHighlight onPress={props.onClick}>
-      <View style={styles.button}>
+      <View style={props.style || styles.button}>
         <Text>{props.label}</Text>
       </View>
     </TouchableHighlight>

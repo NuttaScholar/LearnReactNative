@@ -53,11 +53,11 @@ export default function App() {
   const onDisconnect = () => {
     socket?.destroy();
     setConnected(false);
-  }
+  };
   const onSend = () => {
-    if(connected){
+    if (connected) {
       socket?.write(data);
-    }    
+    }
   };
 
   return (
@@ -80,7 +80,11 @@ export default function App() {
         value={endpoint.port.toString()}
         style_label={styles.text}
       />
-      <Button label={connected?"Disconnect":"Connect"} onClick={connected?onDisconnect:onConnect} />
+      <Button
+        style={styles.button}
+        label={connected ? "Disconnect" : "Connect"}
+        onClick={connected ? onDisconnect : onConnect}
+      />
       <InputField
         label="Recive"
         value={recive}
@@ -94,13 +98,17 @@ export default function App() {
         value={data}
         style_label={styles.text}
       />
-      <Button label="Send" onClick={onSend} />
+      <Button style={styles.button} label="Send" onClick={onSend} />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: "center", alignItems: "center" },
+  container: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
   text: {
     fontSize: 16,
     fontWeight: 600,
@@ -110,6 +118,8 @@ const styles = StyleSheet.create({
   button: {
     alignItems: "center",
     backgroundColor: "#DDDDDD",
-    padding: 10,
+    width: 100,
+    height: 40,
+    justifyContent: "center",
   },
 });

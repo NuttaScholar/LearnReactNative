@@ -5,6 +5,7 @@ interface myProps {
   onChange?: (text: string) => void;
   value?: string; 
   style_label?: StyleProp<TextStyle>;
+  style_field?: StyleProp<TextStyle>;
   style?: StyleProp<ViewStyle>;
   multiline?: boolean;
   numberOfLines?: number;
@@ -16,7 +17,7 @@ const InputField: React.FC<myProps> = (props) => {
     <View style={props.style||styles.container}>
       <Text style={props.style_label||styles.text}>{`${props.label}:`}</Text>
       <TextInput
-        style={styles.input}
+        style={props.style_field||styles.input}
         onChangeText={props.onChange}
         value={props.value}
         multiline={props.multiline}
