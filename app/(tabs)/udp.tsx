@@ -3,7 +3,13 @@ import InputField from "@/components/atom/InputField";
 import { Buffer } from "buffer";
 import * as Network from "expo-network";
 import { useEffect, useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import {
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text
+} from "react-native";
 import dgram from "react-native-udp";
 import UdpSocket from "react-native-udp/lib/types/UdpSocket";
 
@@ -62,70 +68,80 @@ export default function Udp() {
     });
   };
   return (
-    <View style={styles.container}>
-      <Text style={styles.text}>Receive Packets</Text>
-      <InputField
-        label="IP"
-        editable={false}
-        value={receive.ip}
-        style_label={styles.label}
-        style_field={styles.field}
-      />
-      <InputField
-        label="Port"
-        onChange={(val) => {
-          if (!isNaN(Number(val))) {
-            setReceive({ ...receive, port: Number(val) });
-          }
-        }}
-        value={receive.port.toString()}
-        style_label={styles.label}
-        style_field={styles.field}
-      />
-      <InputField
-        label="Data"
-        editable={false}
-        value={receive.data}
-        style_label={styles.label}
-        style_field={styles.field}
-      />
-      <Button
-        style={styles.button}
-        label={open ? "CloseSocket" : "OpenSocket"}
-        onClick={open ? onClose : onOpen}
-      />
-      <Text style={styles.text}>Send Packets</Text>
-      <InputField
-        label="IP"
-        onChange={(val) => {
-          setSend({ ...send, ip: val });
-        }}
-        value={send.ip}
-        style_label={styles.label}
-        style_field={styles.field}
-      />
-      <InputField
-        label="Port"
-        onChange={(val) => {
-          if (!isNaN(Number(val))) {
-            setSend({ ...send, port: Number(val) });
-          }
-        }}
-        value={send.port.toString()}
-        style_label={styles.label}
-        style_field={styles.field}
-      />
-      <InputField
-        label="Data"
-        onChange={(val) => {
-          setSend({ ...send, data: val });
-        }}
-        value={send.data}
-        style_label={styles.label}
-        style_field={styles.field}
-      />
-      <Button style={styles.button} label="Send" onClick={onSend} />
-    </View>
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      keyboardVerticalOffset={100}
+    >
+      <ScrollView
+        style={styles.scroll}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={true} // ✅ แสดง scrollbar
+      >
+        <Text style={styles.text}>Receive Packets</Text>
+        <InputField
+          label="IP"
+          editable={false}
+          value={receive.ip}
+          style_label={styles.label}
+          style_field={styles.field}
+        />
+        <InputField
+          label="Port"
+          onChange={(val) => {
+            if (!isNaN(Number(val))) {
+              setReceive({ ...receive, port: Number(val) });
+            }
+          }}
+          value={receive.port.toString()}
+          style_label={styles.label}
+          style_field={styles.field}
+        />
+        <InputField
+          label="Data"
+          editable={false}
+          value={receive.data}
+          style_label={styles.label}
+          style_field={styles.field}
+        />
+        <Button
+          style={styles.button}
+          label={open ? "CloseSocket" : "OpenSocket"}
+          onClick={open ? onClose : onOpen}
+        />
+        <Text style={styles.text}>Send Packets</Text>
+        <InputField
+          label="IP"
+          onChange={(val) => {
+            setSend({ ...send, ip: val });
+          }}
+          value={send.ip}
+          style_label={styles.label}
+          style_field={styles.field}
+        />
+        <InputField
+          label="Port"
+          onChange={(val) => {
+            if (!isNaN(Number(val))) {
+              setSend({ ...send, port: Number(val) });
+            }
+          }}
+          value={send.port.toString()}
+          style_label={styles.label}
+          style_field={styles.field}
+        />
+        <InputField
+          label="Data"
+          onChange={(val) => {
+            setSend({ ...send, data: val });
+          }}
+          value={send.data}
+          style_label={styles.label}
+          style_field={styles.field}
+        />
+        <Button style={styles.button} label="Send" onClick={onSend} />
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -133,8 +149,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#25292e",
+  },
+  scroll: { flex: 1 },
+  scrollContent: {
+    padding: 16,
+    marginBottom: 20,
     alignItems: "center",
-    justifyContent: "flex-start",
+    justifyContent: "center",
   },
   text: {
     color: "#fff",
