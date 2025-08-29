@@ -43,7 +43,6 @@ export default function Udp() {
       send.ip,
       function (err) {
         if (err) throw err;
-
         console.log("Message sent!");
       }
     );

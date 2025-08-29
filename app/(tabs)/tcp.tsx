@@ -1,7 +1,7 @@
 import Button from "@/components/atom/Button";
 import InputField from "@/components/atom/InputField";
 import React, { useState } from "react";
-import { StyleSheet, View } from "react-native";
+import { KeyboardAvoidingView, Platform, StyleSheet } from "react-native";
 import TcpSocket from "react-native-tcp-socket";
 
 type endpoint = {
@@ -61,7 +61,11 @@ export default function App() {
   };
 
   return (
-    <View style={styles.container}>
+    <KeyboardAvoidingView
+          style={styles.container}
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          keyboardVerticalOffset={100}
+        >
       <InputField
         label="IP"
         onChange={(val) => {
@@ -99,7 +103,7 @@ export default function App() {
         style_label={styles.text}
       />
       <Button style={styles.button} label="Send" onClick={onSend} />
-    </View>
+    </KeyboardAvoidingView>
   );
 }
 
